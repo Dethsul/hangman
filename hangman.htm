@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        .hidden-word {
+            font-size: 24px;
+            letter-spacing: 10px;
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        .hangman {
+            font-size: 30px;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hangman</h1>
+    <div class="input-section">
+        <input type="password" id="word-input" placeholder="Enter word(s)">
+        <button onclick="startGame()">Start</button>
+    </div>
+    <div id="game" style="display:none;">
+        <p class="hidden-word" id="display-word"></p>
+        <input type="text" id="guess-input" maxlength="1" placeholder="Guess a letter">
+        <button onclick="guessLetter()">Guess</button>
+        <p>Attempts left: <span id="attempts">6</span></p>
+        <p class="hangman" id="hangman-visual"></p>
+        <p id="message"></p>
+    </div>
+    <script>
+        let word = "";
+        let guessedWord = [];
+        let attemptsLeft = 6;
+        let guessedLetters = new Set();
+        let hangmanStages = [
+            "  +---+\n      |   |\n          |\n          |\n          |\n          |\n=========",
+            "  +---+\n  O   |\n      |\n      |\n      |\n      |\n=========",
+            "  +---+\n  O   |\n  |   |\n      |\n      |\n      |\n=========",
+            "  +---+\n  O   |\n /|   |\n      |\n      |\n      |\n=========",
+            "  +---+\n  O   |\n /|\  |\n      |\n      |\n      |\n=========",
+            "  +---+\n  O   |\n /|\  |\n /    |\n      |\n      |\n=========",
+            "  +---+\n  O   |\n /|\  |\n / \  |\n      |\n      |\n========="
+        ];
+        
+        function startGame() {
+            word = document.getElementById('word-input').value.toLowerCase();
+            if (!word) return alert("Enter a word to start!");
+            guessedWord = Array.from(word, char => (char === ' ' ? ' ' : '_'));
+            guessedLetters.clear();
+            attemptsLeft = 6;
+            updateDisplay();
+            document.getElementById('game').style.display = 'block';
+        }
+        
+        function guessLetter() {
+            let letter = document.getElementById('guess-input').value.toLowerCase();
+            if (!letter || letter.length !== 1 || guessedLetters.has(letter)) return;
+            guessedLetters.add(letter);
+            document.getElementById('guess-input').value = '';
+            
+            if (word.includes(letter)) {
+                for (let i = 0; i < word.length; i++) {
+                    if (word[i] === letter) guessedWord[i] = letter;
+                }
+            } else {
+                attemptsLeft--;
+            }
+            updateDisplay();
+        }
+        
+        function updateDisplay() {
+            document.getElementById('display-word').innerText = guessedWord.join(' ');
+            document.getElementById('attempts').innerText = attemptsLeft;
+            document.getElementById('hangman-visual').innerText = hangmanStages[6 - attemptsLeft];
+            
+            if (!guessedWord.includes('_')) {
+                document.getElementById('message').innerText = "You Win!";
+            } else if (attemptsLeft === 0) {
+                document.getElementById('message').innerText = `You Lose! The word was: ${word}`;
+            }
+        }
+    </script>
+</body>
+</html>
